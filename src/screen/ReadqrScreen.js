@@ -1,36 +1,39 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
-import { BarCodeScanner } from 'expo-barcode-scanner';
+import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { Camera } from 'expo-camera';
 
 function ReadqrScreen({ navigation }) {
-  const [hasPermission, setHasPermission] = useState(null); // Verifica los permisos de la cámara
-  const [scanned, setScanned] = useState(false); // Controla el estado del escaneo
-  const [qrData, setQrData] = useState(null); // Almacena los datos del QR
+  const [hasPermission, setHasPermission] = useState(null);
+  const [isCameraReady, setIsCameraReady] = useState(false);
+  const [scanned, setScanned] = useState(false);
+  const [qrData, setQrData] = useState(null);
 
-  // Solicita permisos para usar la cámara al montar el componente
   useEffect(() => {
     (async () => {
-      const { status } = await BarCodeScanner.requestPermissionsAsync();
+      const { status } = await Camera.requestCameraPermissionsAsync();
       setHasPermission(status === 'granted');
     })();
   }, []);
 
   const handleBarCodeScanned = ({ data }) => {
     try {
-      const parsedData = JSON.parse(data); // Supone que el QR contiene JSON con datos
+      const parsedData = JSON.parse(data);
       setQrData(parsedData);
       setScanned(true);
-      Alert.alert('Acceso permitido', 'QR escaneado correctamente');
+      Alert.alert('QR Scanned', 'QR code scanned successfully!');
     } catch (error) {
-      Alert.alert('Error', 'El código QR no contiene datos válidos');
+      Alert.alert('Error', 'Invalid QR code data');
     }
   };
 
-  // Manejo de permisos no concedidos
+  const onCameraReady = () => {
+    setIsCameraReady(true);
+  };
+
   if (hasPermission === null) {
     return (
       <View style={styles.container}>
-        <Text style={styles.message}>Solicitando permiso para usar la cámara...</Text>
+        <Text style={styles.message}>Requesting camera permission...</Text>
       </View>
     );
   }
@@ -38,14 +41,12 @@ function ReadqrScreen({ navigation }) {
   if (hasPermission === false) {
     return (
       <View style={styles.container}>
-        <Text style={styles.message}>
-          No se concedieron permisos para usar la cámara.
-        </Text>
+        <Text style={styles.message}>Camera permission denied</Text>
         <TouchableOpacity
           style={styles.button}
           onPress={() => navigation.goBack()}
         >
-          <Text style={styles.buttonText}>Volver</Text>
+          <Text style={styles.buttonText}>Go Back</Text>
         </TouchableOpacity>
       </View>
     );
@@ -55,26 +56,39 @@ function ReadqrScreen({ navigation }) {
     <View style={styles.container}>
       {!scanned ? (
         <>
-          <Text style={styles.title}>Escanea un código QR</Text>
-          <BarCodeScanner
-            onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
-            style={StyleSheet.absoluteFillObject}
-          />
+          <Text style={styles.title}>Scan a QR Code</Text>
+          {Camera.Constants?.BarCodeType || isCameraReady ? (
+            <View style={styles.cameraContainer}>
+              {!isCameraReady && (
+                <ActivityIndicator size="large" color="#3a5a9f" style={styles.loader} />
+              )}
+              <Camera
+                style={styles.camera}
+                onCameraReady={onCameraReady}
+                onBarCodeScanned={scanned ? undefined : handleBarCodeScanned}
+                barCodeScannerSettings={{
+                  barCodeTypes: [Camera.Constants?.BarCodeType?.qr || 'qr'],
+                }}
+              />
+            </View>
+          ) : (
+            <Text style={styles.message}>Camera module not initialized.</Text>
+          )}
         </>
       ) : (
         <View style={styles.dataContainer}>
-          <Text style={styles.label}>Datos leídos del QR:</Text>
-          <Text style={styles.text}>Nombre: {qrData?.name || 'No disponible'}</Text>
+          <Text style={styles.label}>QR Data:</Text>
+          <Text style={styles.text}>Name: {qrData?.name || 'Not available'}</Text>
           <Text style={styles.text}>
-            Fecha de inicio: {qrData?.startDate || 'No disponible'}
+            Start Date: {qrData?.startDate || 'Not available'}
           </Text>
           <Text style={styles.text}>
-            Fecha de fin: {qrData?.endDate || 'No disponible'}
+            End Date: {qrData?.endDate || 'Not available'}
           </Text>
           <Text style={styles.text}>
-            Tipo de visita: {qrData?.typeOfVisit || 'No disponible'}
+            Visit Type: {qrData?.typeOfVisit || 'Not available'}
           </Text>
-          <Text style={styles.text}>Nota: {qrData?.note || 'No disponible'}</Text>
+          <Text style={styles.text}>Note: {qrData?.note || 'Not available'}</Text>
 
           <TouchableOpacity
             style={styles.button}
@@ -83,7 +97,7 @@ function ReadqrScreen({ navigation }) {
               setQrData(null);
             }}
           >
-            <Text style={styles.buttonText}>Escanear otro QR</Text>
+            <Text style={styles.buttonText}>Scan Another QR</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -96,6 +110,21 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  cameraContainer: {
+    flex: 1,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  camera: {
+    flex: 1,
+    width: '100%',
+  },
+  loader: {
+    position: 'absolute',
+    top: '50%',
+    alignSelf: 'center',
   },
   title: {
     fontSize: 22,
@@ -134,6 +163,4 @@ const styles = StyleSheet.create({
 });
 
 export default ReadqrScreen;
-
-
 
