@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
 
@@ -26,7 +26,7 @@ const MaintenanceScreen = ({ navigation }) => {
                 style={[styles.button, { backgroundColor: item.color }]}
                 onPress={() => {
                   if (item.status === "Pay") {
-                    navigation.navigate("Pay", { month: item.month });
+                    navigation.navigate("Payment", { month: item.month }); // Navegar a la pantalla de pago
                   } else {
                     alert(`${item.status} ${item.month}`);
                   }

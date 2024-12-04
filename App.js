@@ -11,6 +11,7 @@ import PayScreen from './src/screen/PayScreen';
 import QRVisitScreen from './src/screen/QRVisitScreen';
 import ReserveScreen from './src/screen/ReserveScreen';
 import EmergenceScreen from './src/screen/EmergenceScreen';
+import PaymentScreen from "./src/screen/PaymentScreen";
 
 const Stack = createStackNavigator();
 
@@ -27,6 +28,7 @@ export default function App() {
         <Stack.Screen name="QRVisit" component={QRVisitScreen} />
         <Stack.Screen name="Reserve" component={ReserveScreen} />
         <Stack.Screen name="Emergence" component={EmergenceScreen} />
+        <Stack.Screen name="Payment" component={PaymentScreen} />
 
       </Stack.Navigator>
     </NavigationContainer>
