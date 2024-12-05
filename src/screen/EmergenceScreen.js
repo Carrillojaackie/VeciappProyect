@@ -65,9 +65,12 @@ const EmergenceScreen = ({ navigation }) => {
             </Text>
             <TouchableOpacity
               style={styles.closeButton}
-              onPress={() => setAlertVisible(false)}
+              onPress={() => {
+                setAlertVisible(false);
+                navigation.navigate("EmergencyFollowUp"); // Ir a la nueva pantalla
+              }}
             >
-              <Text style={styles.closeButtonText}>Close</Text>
+              <Text style={styles.closeButtonText}>Follow Up</Text>
             </TouchableOpacity>
           </View>
         </View>
