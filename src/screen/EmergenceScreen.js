@@ -32,7 +32,7 @@ const EmergenceScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.appName}>VECIAPP</Text>
-      <Text style={styles.title}>Emergence</Text>
+      <Text style={styles.title}>Emergencee</Text>
 
       {/* Emergency Button */}
       <TouchableOpacity style={styles.emergencyButton} onPress={handlePress}>
